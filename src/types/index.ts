@@ -136,6 +136,7 @@ export interface ScenarioTotal {
   savingsPercent: number;
   isBestValue: boolean;
   hasLockedItems: boolean; // true if any item in cart is locked for this tier
+  lockedItemNames: string[]; // names of items locked for this tier
   goldItemCount?: number; // how many gold-tier items are in the cart
   goldItemLimit?: number; // max gold items allowed (4)
   isOverGoldLimit?: boolean;

@@ -429,15 +429,31 @@ export function SummaryImageCard() {
                         </p>
                       )}
                       {t.hasLockedItems && (
-                        <p
-                          style={{
-                            fontSize: "9px",
-                            color: isBest ? "rgba(255,255,255,0.6)" : "#EF4444",
-                            marginTop: "4px",
-                          }}
-                        >
-                          ⚠️ บางรายการไม่รองรับ
-                        </p>
+                        <div style={{ marginTop: "4px" }}>
+                          <p
+                            style={{
+                              fontSize: "9px",
+                              color: isBest ? "rgba(255,255,255,0.6)" : "#EF4444",
+                              fontWeight: "500",
+                            }}
+                          >
+                            ⚠️ ไม่รองรับ:
+                          </p>
+                          {t.lockedItemNames?.map((name, idx) => (
+                            <p
+                              key={idx}
+                              style={{
+                                fontSize: "8px",
+                                color: isBest ? "rgba(255,255,255,0.5)" : "#F87171",
+                                fontWeight: "300",
+                                paddingLeft: "8px",
+                                lineHeight: "1.4",
+                              }}
+                            >
+                              • {name}
+                            </p>
+                          ))}
+                        </div>
                       )}
                     </div>
                   );

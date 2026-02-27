@@ -287,14 +287,19 @@ function calculateScenarioTotals(
     savingsPercent: 0,
     isBestValue: false,
     hasLockedItems: false,
+    lockedItemNames: [],
   };
 
   // Pass scenarios
   const passScenarios: ScenarioTotal[] = passes.map((pass) => {
-    const hasLockedItems = items.some((item) => {
+    const lockedItemNames: string[] = [];
+    items.forEach((item) => {
       const passPrice = item.prices.find((p) => p.passSlug === pass.slug);
-      return passPrice?.isLocked ?? false;
+      if (passPrice?.isLocked) {
+        lockedItemNames.push(item.productName);
+      }
     });
+    const hasLockedItems = lockedItemNames.length > 0;
 
     let itemsTotal = 0;
     let goldItemCount = 0;
@@ -400,6 +405,7 @@ function calculateScenarioTotals(
       savingsPercent,
       isBestValue: false,
       hasLockedItems,
+      lockedItemNames,
     };
 
     if (pass.slug === "gold") {
@@ -527,6 +533,7 @@ function buildEmptyTotals(passes: Pass[]): ScenarioTotal[] {
     savingsPercent: 0,
     isBestValue: true,
     hasLockedItems: false,
+    lockedItemNames: [],
   };
 
   const passScenarios = passes.map((pass) => ({
@@ -539,6 +546,7 @@ function buildEmptyTotals(passes: Pass[]): ScenarioTotal[] {
     savingsPercent: 0,
     isBestValue: false,
     hasLockedItems: false,
+    lockedItemNames: [] as string[],
   }));
 
   return [normal, ...passScenarios];

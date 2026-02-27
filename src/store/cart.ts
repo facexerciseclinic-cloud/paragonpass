@@ -66,6 +66,7 @@ const emptyComparison: CartComparison = {
       savingsPercent: 0,
       isBestValue: true,
       hasLockedItems: false,
+      lockedItemNames: [],
     },
   ],
   bestScenario: "normal",

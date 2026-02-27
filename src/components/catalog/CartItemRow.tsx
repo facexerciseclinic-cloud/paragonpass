@@ -2,6 +2,8 @@
 
 import { useCartStore } from "@/store/cart";
 import { formatPrice } from "@/lib/constants";
+import { resolvePassPrice } from "@/lib/cart-engine";
+import type { ProductWithPricing } from "@/types";
 
 interface Props {
   productId: string;
@@ -10,10 +12,30 @@ interface Props {
   normalUnitPrice: number;
 }
 
+/** Determine which passes a product supports */
+function getPassSupport(product: ProductWithPricing) {
+  const slugs = ["silver", "gold", "paragon"] as const;
+  return slugs.map((slug) => ({
+    slug,
+    supported: resolvePassPrice(product, slug) !== null,
+  }));
+}
+
+const passStyle = {
+  silver: { label: "S", bg: "#CBD5E1", text: "#475569" },
+  gold: { label: "G", bg: "#FCD34D", text: "#92400E" },
+  paragon: { label: "P", bg: "#C084FC", text: "#581C87" },
+} as const;
+
 export function CartItemRow({ productId, productName, quantity, normalUnitPrice }: Props) {
   const decrementItem = useCartStore((s) => s.decrementItem);
   const incrementItem = useCartStore((s) => s.incrementItem);
   const removeItem = useCartStore((s) => s.removeItem);
+  const items = useCartStore((s) => s.items);
+
+  const cartItem = items.find((i) => i.productId === productId);
+  const passSupport = cartItem ? getPassSupport(cartItem.product) : [];
+  const hasUnsupported = passSupport.some((p) => !p.supported);
 
   return (
     <div className="flex items-center gap-3 py-3 border-b border-[var(--neutral-200)]/40 last:border-b-0 group">
@@ -22,9 +44,34 @@ export function CartItemRow({ productId, productName, quantity, normalUnitPrice 
         <p className="text-sm font-medium text-[var(--neutral-800)] truncate">
           {productName}
         </p>
-        <p className="text-[11px] text-[var(--neutral-400)] font-light tabular-nums">
-          ราคาปกติ ฿{formatPrice(normalUnitPrice)} / ครั้ง
-        </p>
+        <div className="flex items-center gap-1.5 mt-0.5">
+          <p className="text-[11px] text-[var(--neutral-400)] font-light tabular-nums">
+            ฿{formatPrice(normalUnitPrice)}/ครั้ง
+          </p>
+          {/* Pass compatibility badges */}
+          <div className="flex items-center gap-0.5">
+            {passSupport.map((ps) => {
+              const style = passStyle[ps.slug];
+              return (
+                <span
+                  key={ps.slug}
+                  className="inline-flex items-center justify-center rounded-sm text-[7px] font-bold leading-none"
+                  style={{
+                    width: "14px",
+                    height: "12px",
+                    background: ps.supported ? style.bg : "#F3F4F6",
+                    color: ps.supported ? style.text : "#D1D5DB",
+                    textDecoration: ps.supported ? "none" : "line-through",
+                    opacity: ps.supported ? 1 : 0.6,
+                  }}
+                  title={`${style.label === "S" ? "Silver Pass" : style.label === "G" ? "Gold Pass" : "Paragon Card"}: ${ps.supported ? "ใช้ได้" : "ไม่รองรับ"}`}
+                >
+                  {style.label}
+                </span>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Quantity Controls */}

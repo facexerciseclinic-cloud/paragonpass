@@ -154,10 +154,25 @@ function ScenarioCard({
         </div>
         {scenario.hasLockedItems && (
           <span className="text-[10px] bg-rose-50 text-rose-400 px-2 py-0.5 rounded-full font-light">
-            บางรายการใช้ไม่ได้
+            {scenario.lockedItemNames.length} รายการใช้ไม่ได้
           </span>
         )}
       </div>
+
+      {/* Locked Items Detail */}
+      {scenario.hasLockedItems && scenario.lockedItemNames.length > 0 && (
+        <div className="mb-2 px-2.5 py-2 bg-rose-50/60 rounded-lg border border-rose-100/80">
+          <p className="text-[10px] text-rose-400 font-medium mb-1">⚠️ รายการที่ไม่รองรับ {config.name}:</p>
+          {scenario.lockedItemNames.map((name, idx) => (
+            <p key={idx} className="text-[10px] text-rose-400/80 font-light pl-3">
+              • {name}
+            </p>
+          ))}
+          <p className="text-[9px] text-[var(--neutral-400)] font-light mt-1 pl-3">
+            (คิดราคาปกติแทน)
+          </p>
+        </div>
+      )}
 
       {/* Breakdown Row */}
       <div className="flex items-end justify-between">

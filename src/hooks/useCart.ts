@@ -163,8 +163,12 @@ export function generateCartSummaryText(): string {
       if (t.savings > 0) {
         lines.push(`│   ✅ ประหยัด: ฿${fmt(t.savings)}`);
       }
-      if (t.hasLockedItems) {
-        lines.push(`│   ⚠️ บางรายการไม่รองรับ Pass นี้`);
+      if (t.hasLockedItems && t.lockedItemNames && t.lockedItemNames.length > 0) {
+        lines.push(`│   ⚠️ ไม่รองรับ Pass นี้:`);
+        t.lockedItemNames.forEach((name) => {
+          lines.push(`│      • ${name}`);
+        });
+        lines.push(`│      (คิดราคาปกติแทน)`);
       }
       if (t.isOverGoldLimit) {
         lines.push(`│   ⚠️ เกินลิมิต Gold (${t.goldItemCount}/${t.goldItemLimit})`);
