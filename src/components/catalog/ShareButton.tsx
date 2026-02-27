@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { generateCartSummaryText } from "@/hooks/useCart";
 import { useCartStore } from "@/store/cart";
+import { SummaryImageCard } from "./SummaryImageCard";
 
 export function ShareButton() {
   const itemCount = useCartStore((s) => s.itemCount);
@@ -19,7 +20,6 @@ export function ShareButton() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch {
-      // Fallback for older browsers
       const textarea = document.createElement("textarea");
       textarea.value = summaryText;
       document.body.appendChild(textarea);
@@ -50,7 +50,10 @@ export function ShareButton() {
         </p>
       </div>
 
-      {/* Action Buttons */}
+      {/* Download Image Button */}
+      <SummaryImageCard />
+
+      {/* Text Action Buttons */}
       <div className="flex gap-2">
         <button
           onClick={handleCopy}
@@ -60,7 +63,7 @@ export function ShareButton() {
               : "bg-[var(--brand-blush)] text-[var(--neutral-600)] hover:bg-[var(--brand-accent-light)]/50 border border-[var(--neutral-200)]/60"
           }`}
         >
-          {copied ? "✓ คัดลอกแล้ว!" : "คัดลอก"}
+          {copied ? "✓ คัดลอกแล้ว!" : "📋 คัดลอกข้อความ"}
         </button>
 
         <button
