@@ -1,0 +1,136 @@
+// Prisma Schema for Paragonpass - Beauty Clinic Value Simulator & Cart System
+// ============================================================================
+// This schema defines the normalized relational database for managing:
+// - Beauty treatment products and categories
+// - Pass tiers (Silver, Gold, Paragon) with upfront fees
+// - Per-product pricing rules for each pass tier
+// - Admin users for the back-office dashboard
+// ============================================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ============================================================================
+// ADMIN USER - for back-office authentication
+// ============================================================================
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  password  String   // bcrypt hashed
+  name      String?
+  role      String   @default("admin") // "admin" | "superadmin"
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ============================================================================
+// PASSES - Silver (299), Gold (999), Paragon (2999)
+// ============================================================================
+// Each pass has an upfront fee and specific conditions.
+// The conditions are stored as structured fields for the logic engine.
+// ============================================================================
+model Pass {
+  id             String   @id @default(cuid())
+  name           String   @unique // "Silver Pass", "Gold Pass", "Paragon Card"
+  slug           String   @unique // "silver", "gold", "paragon"
+  upfrontFee     Float              // 299, 999, 2999
+  description    String?            // Marketing description
+  conditionsText String?            // Human-readable conditions summary
+  maxItems       Int?               // null = unlimited; Gold has 4 for gold-tier items
+  validityDays   Int?               // null = per session; Paragon = 90 days (3 months)
+  sortOrder      Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  // Relations
+  productPricing ProductPassPricing[]
+
+  @@map("passes")
+}
+
+// ============================================================================
+// CATEGORIES - grouping of treatments
+// ============================================================================
+// e.g., "Drip ผิว", "Acne สิว", "เครื่องยกกระชับ", "FILLER", "Botox", etc.
+// ============================================================================
+model Category {
+  id        String   @id @default(cuid())
+  name      String   @unique
+  slug      String   @unique
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  products Product[]
+
+  @@map("categories")
+}
+
+// ============================================================================
+// PRODUCTS - individual beauty treatments
+// ============================================================================
+// Each product belongs to a category and has base pricing.
+// The Normal Price is the walk-in retail price.
+// The Promo Price is a limited-time promotional price (may equal Normal).
+// ============================================================================
+model Product {
+  id          String   @id @default(cuid())
+  categoryId  String
+  name        String
+  normalPrice Float              // Walk-in / retail price
+  promoPrice  Float              // Promotional price (can equal normalPrice)
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  category     Category             @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  passPricing  ProductPassPricing[]
+
+  @@unique([categoryId, name])
+  @@map("products")
+}
+
+// ============================================================================
+// PRODUCT_PASS_PRICING - the pricing junction table
+// ============================================================================
+// This is the CRITICAL table that handles the complex pricing rules:
+//
+// isAccessible = false  → Symbol "-" → Product is LOCKED for this pass tier
+// isAccessible = true   → Product is available at specialPrice
+// usesBestPrice = true  → Symbol "/" → Inherits the best (lowest) available price
+//                         from lower tiers or uses specialPrice if set
+//
+// specialPrice:
+//   - The specific discounted price for this pass tier
+//   - If usesBestPrice is true, the engine will compute the lowest price
+//     across all accessible tiers
+// ============================================================================
+model ProductPassPricing {
+  id           String  @id @default(cuid())
+  productId    String
+  passId       String
+  specialPrice Float?            // The tier-specific price (null if uses best price logic)
+  isAccessible Boolean @default(true)  // false = "-" symbol, locked for this tier
+  usesBestPrice Boolean @default(false) // true = "/" symbol, inherit lowest available price
+
+  // Relations
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  pass    Pass    @relation(fields: [passId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, passId])
+  @@map("product_pass_pricing")
+}
