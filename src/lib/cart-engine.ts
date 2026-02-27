@@ -388,7 +388,7 @@ function calculateScenarioTotals(
     const grandTotal = pass.upfrontFee + itemsTotal;
     const savings = normalItemsTotal - grandTotal;
     const savingsPercent =
-      normalItemsTotal > 0 ? (savings / normalItemsTotal) * 100 : 0;
+      normalItemsTotal > 0 ? Math.round(((savings / normalItemsTotal) * 100) * 100) / 100 : 0;
 
     const scenario: ScenarioTotal = {
       slug: pass.slug,

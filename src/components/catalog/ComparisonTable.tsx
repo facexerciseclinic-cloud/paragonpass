@@ -196,7 +196,7 @@ function ScenarioCard({
           <p className="text-[9px] text-[var(--neutral-400)] font-light">ยอดจ่ายทั้งหมด</p>
           {scenario.savings > 0 && (
             <p className="text-[11px] text-emerald-600 font-medium tabular-nums">
-              ประหยัด ฿{formatPrice(scenario.savings)} ({scenario.savingsPercent}%)
+              ประหยัด ฿{formatPrice(scenario.savings)} ({scenario.savingsPercent.toFixed(2)}%)
             </p>
           )}
         </div>

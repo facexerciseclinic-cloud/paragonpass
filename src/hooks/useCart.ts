@@ -150,7 +150,7 @@ export function generateCartSummaryText(): string {
 
   comparison.totals.forEach((t) => {
     const star = t.isBestValue ? " ⭐" : "";
-    const savingsText = t.savings > 0 ? ` (-${t.savingsPercent}%)` : "";
+    const savingsText = t.savings > 0 ? ` (-${t.savingsPercent.toFixed(2)}%)` : "";
 
     lines.push(`│ ${t.name}${star}`);
 
@@ -180,7 +180,7 @@ export function generateCartSummaryText(): string {
     lines.push("");
     lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
     lines.push(`🏆 แนะนำ: ใช้ ${best.name}`);
-    lines.push(`   จ่ายรวม ฿${fmt(best.grandTotal)} (ประหยัด ฿${fmt(best.savings)}, ลด ${best.savingsPercent}%)`);
+    lines.push(`   จ่ายรวม ฿${fmt(best.grandTotal)} (ประหยัด ฿${fmt(best.savings)}, ลด ${best.savingsPercent.toFixed(2)}%)`);
     lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
   }
 

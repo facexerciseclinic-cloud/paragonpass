@@ -379,7 +379,7 @@ export function PricingClientPage() {
                             const price = resolvePassPrice(product.passPricing, pp, product.normalPrice);
                             const isBest = price === bestPrice;
                             const savingsAmt = product.normalPrice - price;
-                            const savingsPct = product.normalPrice > 0 ? Math.round((savingsAmt / product.normalPrice) * 100) : 0;
+                            const savingsPct = product.normalPrice > 0 ? (Math.round(((savingsAmt / product.normalPrice) * 100) * 100) / 100) : 0;
                             return (
                               <td key={pass.id} className={`text-center px-3 py-3 ${cfg.cellBg}`}>
                                 <span
@@ -399,7 +399,7 @@ export function PricingClientPage() {
                                 {savingsAmt > 0 && (
                                   <>
                                     <span className="block text-[9px] text-emerald-500 font-light mt-0.5">
-                                      ประหยัด ฿{formatPrice(savingsAmt)} <span className="font-semibold">(-{savingsPct}%)</span>
+                                      ประหยัด ฿{formatPrice(savingsAmt)} <span className="font-semibold">(-{savingsPct.toFixed(2)}%)</span>
                                     </span>
                                     <div className="mt-1 mx-auto w-14 bg-neutral-100 rounded-full h-1 overflow-hidden">
                                       <div
@@ -485,7 +485,7 @@ export function PricingClientPage() {
                                 </span>
                                 {savingsAmt > 0 && (
                                   <span className="block text-[9px] text-emerald-500 font-light">
-                                    ประหยัด ฿{formatPrice(savingsAmt)} <span className="font-semibold">(-{savingsPct}%)</span>
+                                    ประหยัด ฿{formatPrice(savingsAmt)} <span className="font-semibold">(-{savingsPct.toFixed(2)}%)</span>
                                   </span>
                                 )}
                               </div>
