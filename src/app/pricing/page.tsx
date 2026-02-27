@@ -1,7 +1,7 @@
 import { PricingClientPage } from "@/components/pricing/PricingClientPage";
 
 export const metadata = {
-  title: "ตารางราคาทั้งหมด - Paragonpass",
+  title: "ตารางราคาทั้งหมด - Paragon Pass | Dr.den Clinic",
   description: "ตารางราคาหัตถการความงามทุกรายการ เปรียบเทียบราคา Normal, Silver Pass, Gold Pass, Paragon Card",
 };
 

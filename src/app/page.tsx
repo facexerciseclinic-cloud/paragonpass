@@ -15,13 +15,13 @@ export default function Home() {
           <div className="flex items-center justify-center gap-3 mb-6">
             <div className="w-12 h-px bg-gradient-to-r from-transparent to-[var(--brand-accent)]" />
             <span className="text-[var(--brand-accent)] text-xs tracking-[0.3em] uppercase font-light">
-              Beauty Clinic
+              Dr.den Clinic
             </span>
             <div className="w-12 h-px bg-gradient-to-l from-transparent to-[var(--brand-accent)]" />
           </div>
 
           <h1 className="text-5xl md:text-6xl font-bold gradient-brand-text tracking-tight mb-3">
-            Paragonpass
+            Paragon Pass
           </h1>
           <p className="text-lg text-[var(--neutral-500)] font-light max-w-lg mx-auto leading-relaxed">
             ระบบจำลองราคาหัตถการความงาม
@@ -151,7 +151,7 @@ export default function Home() {
         {/* Bottom decoration */}
         <div className="absolute bottom-8 flex items-center gap-2 text-[var(--neutral-400)] text-xs">
           <div className="w-1 h-1 rounded-full bg-[var(--brand-accent)]" />
-          <span className="font-light tracking-wider">Beauty • Confidence • Value</span>
+          <span className="font-light tracking-wider">Dr.den Clinic • Beauty • Confidence</span>
           <div className="w-1 h-1 rounded-full bg-[var(--brand-accent)]" />
         </div>
       </div>

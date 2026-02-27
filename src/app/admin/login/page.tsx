@@ -73,9 +73,9 @@ function LoginForm() {
             <span className="text-white text-2xl font-bold">P</span>
           </div>
           <h1 className="text-2xl font-semibold gradient-brand-text tracking-tight">
-            Paragonpass
+            Paragon Pass
           </h1>
-          <p className="text-sm text-[var(--neutral-400)] mt-1 font-light">Beauty Clinic Admin</p>
+          <p className="text-sm text-[var(--neutral-400)] mt-1 font-light">Dr.den Clinic Admin</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">

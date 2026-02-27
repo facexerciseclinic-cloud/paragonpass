@@ -2,7 +2,7 @@ import AuthProvider from "@/components/providers/AuthProvider";
 import AdminSidebar from "@/components/admin/AdminSidebar";
 
 export const metadata = {
-  title: "Admin - Paragonpass",
+  title: "Admin - Paragon Pass | Dr.den Clinic",
 };
 
 export default function AdminLayout({

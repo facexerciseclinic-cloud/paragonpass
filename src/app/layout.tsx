@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Paragonpass — Beauty Clinic Value Simulator",
+  title: "Paragon Pass — Dr.den Clinic",
   description:
-    "เปรียบเทียบราคาหัตถการความงาม เลือก Pass ที่คุ้มค่าที่สุดสำหรับคุณ",
+    "Dr.den Clinic — เปรียบเทียบราคาหัตถการความงาม เลือก Pass ที่คุ้มค่าที่สุดสำหรับคุณ",
 };
 
 export default function RootLayout({

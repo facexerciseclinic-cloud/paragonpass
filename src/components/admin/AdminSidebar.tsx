@@ -57,7 +57,7 @@ export default function AdminSidebar() {
           </div>
           <div>
             <h1 className="text-lg font-semibold gradient-brand-text tracking-tight">
-              Paragonpass
+              Paragon Pass
             </h1>
             <p className="text-[10px] text-[var(--neutral-400)] font-light tracking-wider uppercase">
               Admin Console

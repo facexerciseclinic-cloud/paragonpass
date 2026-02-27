@@ -88,7 +88,7 @@ export function generateCartSummaryText(): string {
   if (items.length === 0) return "ตะกร้าว่าง";
 
   const lines: string[] = [
-    "🏥 Paragonpass - สรุปรายการ",
+    "🏥 Dr.den Clinic — Paragon Pass — สรุปรายการ",
     "═══════════════════════",
     "",
   ];
@@ -117,7 +117,7 @@ export function generateCartSummaryText(): string {
 
   lines.push("");
   lines.push("═══════════════════════");
-  lines.push("💬 สนใจสอบถามเพิ่มเติม @ParagonPass");
+  lines.push("💬 สนใจสอบถามเพิ่มเติม @Dr.denClinic");
 
   return lines.join("\n");
 }
