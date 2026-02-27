@@ -14,8 +14,16 @@ export function CatalogClientPage() {
   const [loading, setLoading] = useState(true);
   const [activeCategoryId, setActiveCategoryId] = useState<string>("");
   const [cartOpen, setCartOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const storeCatalog = useCartStore((s) => s.setCatalog);
   const itemCount = useCartStore((s) => s.itemCount);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 10);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   useEffect(() => {
     async function fetchCatalog() {
@@ -72,7 +80,11 @@ export function CatalogClientPage() {
   return (
     <div className="min-h-screen bg-[var(--brand-cream)]">
       {/* Header */}
-      <header className="glass sticky top-0 z-40 border-b border-[var(--neutral-200)]/60">
+      <header className={`sticky top-0 z-40 border-b border-[var(--neutral-200)]/60 transition-all duration-300 ${
+        scrolled
+          ? "bg-[var(--brand-cream)] shadow-md"
+          : "glass"
+      }`}>
         <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-xl gradient-brand flex items-center justify-center shadow-brand">
