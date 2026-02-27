@@ -89,11 +89,6 @@ function resolveBestPrice(
 ): number {
   const candidates: number[] = [product.normalPrice];
 
-  // Consider promo price if lower
-  if (product.promoPrice > 0 && product.promoPrice < product.normalPrice) {
-    candidates.push(product.promoPrice);
-  }
-
   // Tier hierarchy: silver → gold → paragon
   const tierOrder = ["silver", "gold", "paragon"];
 

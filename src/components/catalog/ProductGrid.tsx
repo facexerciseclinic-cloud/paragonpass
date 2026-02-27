@@ -45,10 +45,6 @@ function ProductCard({ product, passes }: ProductCardProps) {
   const existingItem = items.find((i) => i.productId === product.id);
   const qty = existingItem?.quantity ?? 0;
 
-  const discount = product.normalPrice > 0
-    ? Math.round(((product.normalPrice - product.promoPrice) / product.normalPrice) * 100)
-    : 0;
-
   // Collect pass pricing badges
   const passBadges = passes.map((pass) => {
     const pp = product.passPricing.find((p) => p.passId === pass.id);
@@ -88,25 +84,11 @@ function ProductCard({ product, passes }: ProductCardProps) {
 
         {/* Prices */}
         <div className="flex items-baseline gap-2 mb-1">
-          {product.normalPrice !== product.promoPrice && (
-            <span className="text-xs text-[var(--neutral-400)] line-through font-light">
-              ฿{formatPrice(product.normalPrice)}
-            </span>
-          )}
           <span className="text-lg font-bold text-[var(--brand-primary)]">
-            ฿{formatPrice(product.promoPrice)}
+            ฿{formatPrice(product.normalPrice)}
           </span>
-          {discount > 0 && (
-            <span className="text-[10px] bg-rose-50 text-rose-500 px-2 py-0.5 rounded-full font-semibold">
-              -{discount}%
-            </span>
-          )}
         </div>
-        {product.normalPrice !== product.promoPrice ? (
-          <p className="text-[10px] text-[var(--neutral-400)] font-light mb-2">ราคาโปรโมชั่น (ไม่ต้องใช้ Pass)</p>
-        ) : (
-          <p className="text-[10px] text-[var(--neutral-400)] font-light mb-2">ราคาปกติ (ไม่ต้องใช้ Pass)</p>
-        )}
+        <p className="text-[10px] text-[var(--neutral-400)] font-light mb-2">ราคาปกติ (ไม่ต้องใช้ Pass)</p>
 
         {/* Pass Pricing Badges */}
         {passBadges.length > 0 && (

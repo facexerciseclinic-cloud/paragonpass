@@ -316,10 +316,6 @@ export function PricingClientPage() {
                         <span className="block">ราคาปกติ</span>
                         <span className="block text-[10px] font-light text-[var(--neutral-400)]">ไม่ต้องใช้ Pass</span>
                       </th>
-                      <th className="text-center text-xs font-medium text-[var(--neutral-500)] px-3 py-3.5 bg-[var(--brand-blush)]/50">
-                        <span className="block">ราคาโปรฯ</span>
-                        <span className="block text-[10px] font-light text-[var(--neutral-400)]">ไม่ต้องใช้ Pass</span>
-                      </th>
                       {data.passes.map((pass) => {
                         const cfg = getPassConfig(pass.slug);
                         return (
@@ -339,10 +335,10 @@ export function PricingClientPage() {
                   <tbody>
                     {category.products.map((product, idx) => {
                       // Determine the best (lowest) price across all scenarios
-                      const allPrices: number[] = [product.promoPrice];
+                      const allPrices: number[] = [product.normalPrice];
                       product.passPricing.forEach((pp) => {
                         if (pp.isAccessible) {
-                          allPrices.push(resolvePassPrice(product.passPricing, pp, product.promoPrice));
+                          allPrices.push(resolvePassPrice(product.passPricing, pp, product.normalPrice));
                         }
                       });
                       const bestPrice = Math.min(...allPrices);
@@ -365,18 +361,6 @@ export function PricingClientPage() {
                               ฿{formatPrice(product.normalPrice)}
                             </span>
                           </td>
-                          {/* Promo Price */}
-                          <td className="text-center px-3 py-3">
-                            <span
-                              className={`text-sm tabular-nums font-medium ${
-                                product.promoPrice < product.normalPrice
-                                  ? "text-emerald-600"
-                                  : "text-[var(--neutral-600)]"
-                              }`}
-                            >
-                              ฿{formatPrice(product.promoPrice)}
-                            </span>
-                          </td>
                           {/* Pass Prices */}
                           {data.passes.map((pass) => {
                             const pp = product.passPricing.find(
@@ -391,7 +375,7 @@ export function PricingClientPage() {
                                 </td>
                               );
                             }
-                            const price = resolvePassPrice(product.passPricing, pp, product.promoPrice);
+                            const price = resolvePassPrice(product.passPricing, pp, product.normalPrice);
                             const isBest = price === bestPrice;
                             return (
                               <td key={pass.id} className="text-center px-3 py-3">
@@ -409,9 +393,9 @@ export function PricingClientPage() {
                                     ★ ราคาดีสุด
                                   </span>
                                 )}
-                                {price < product.promoPrice && (
+                                {price < product.normalPrice && (
                                   <span className="block text-[9px] text-emerald-500 font-light mt-0.5">
-                                    ประหยัด ฿{formatPrice(product.promoPrice - price)}
+                                    ประหยัด ฿{formatPrice(product.normalPrice - price)}
                                   </span>
                                 )}
                               </td>
@@ -427,10 +411,10 @@ export function PricingClientPage() {
               {/* Mobile Cards */}
               <div className="md:hidden space-y-3">
                 {category.products.map((product) => {
-                  const allPrices: number[] = [product.promoPrice];
+                  const allPrices: number[] = [product.normalPrice];
                   product.passPricing.forEach((pp) => {
                     if (pp.isAccessible) {
-                      allPrices.push(resolvePassPrice(product.passPricing, pp, product.promoPrice));
+                      allPrices.push(resolvePassPrice(product.passPricing, pp, product.normalPrice));
                     }
                   });
                   const bestPrice = Math.min(...allPrices);
@@ -444,20 +428,12 @@ export function PricingClientPage() {
                         {product.name}
                       </p>
 
-                      {/* Base prices */}
-                      <div className="grid grid-cols-2 gap-2 mb-3 pb-3 border-b border-[var(--neutral-200)]/40">
+                      {/* Base price */}
+                      <div className="mb-3 pb-3 border-b border-[var(--neutral-200)]/40">
                         <div>
-                          <p className="text-[10px] text-[var(--neutral-400)] font-light mb-0.5">ราคาปกติ</p>
+                          <p className="text-[10px] text-[var(--neutral-400)] font-light mb-0.5">ราคาปกติ (ไม่ต้องใช้ Pass)</p>
                           <p className="text-sm tabular-nums text-[var(--neutral-600)]">
                             ฿{formatPrice(product.normalPrice)}
-                          </p>
-                        </div>
-                        <div>
-                          <p className="text-[10px] text-[var(--neutral-400)] font-light mb-0.5">ราคาโปรโมชั่น</p>
-                          <p className={`text-sm tabular-nums font-medium ${
-                            product.promoPrice < product.normalPrice ? "text-emerald-600" : "text-[var(--neutral-600)]"
-                          }`}>
-                            ฿{formatPrice(product.promoPrice)}
                           </p>
                         </div>
                       </div>
@@ -479,7 +455,7 @@ export function PricingClientPage() {
                             );
                           }
 
-                          const price = resolvePassPrice(product.passPricing, pp, product.promoPrice);
+                          const price = resolvePassPrice(product.passPricing, pp, product.normalPrice);
                           const isBest = price === bestPrice;
 
                           return (
@@ -494,9 +470,9 @@ export function PricingClientPage() {
                                   ฿{formatPrice(price)}
                                   {isBest && <span className="text-[9px] ml-1">★</span>}
                                 </span>
-                                {price < product.promoPrice && (
+                                {price < product.normalPrice && (
                                   <span className="block text-[9px] text-emerald-500 font-light">
-                                    ประหยัด ฿{formatPrice(product.promoPrice - price)}
+                                    ประหยัด ฿{formatPrice(product.normalPrice - price)}
                                   </span>
                                 )}
                               </div>
@@ -523,12 +499,12 @@ export function PricingClientPage() {
               <span><strong>ราคาปกติ</strong> — ราคาหน้าร้าน ไม่ต้องซื้อ Pass</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-500" />
-              <span><strong>ราคาโปรฯ</strong> — โปรโมชั่นพิเศษ ไม่ต้องซื้อ Pass</span>
-            </div>
-            <div className="flex items-center gap-2">
               <span className="text-[var(--brand-primary)] font-bold text-sm">★</span>
               <span><strong>ราคาดีสุด</strong> — ราคาต่ำสุดของหัตถการนั้น</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-emerald-500 text-xs font-medium">ประหยัด</span>
+              <span>— ส่วนลดเทียบกับราคาปกติ</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[var(--neutral-300)] text-[10px]">ไม่เปิดให้</span>
@@ -559,7 +535,7 @@ export function PricingClientPage() {
 function resolvePassPrice(
   allPricing: { isAccessible: boolean; specialPrice: number | null; usesBestPrice: boolean }[],
   pp: { specialPrice: number | null; usesBestPrice: boolean },
-  promoPrice: number
+  fallbackPrice: number
 ): number {
   if (pp.specialPrice != null) return pp.specialPrice;
 
@@ -568,7 +544,7 @@ function resolvePassPrice(
     .filter((p) => p.isAccessible && p.specialPrice != null)
     .map((p) => p.specialPrice as number);
 
-  return accessiblePrices.length > 0 ? Math.min(...accessiblePrices) : promoPrice;
+  return accessiblePrices.length > 0 ? Math.min(...accessiblePrices) : fallbackPrice;
 }
 
 // Helper to get pass visual config
