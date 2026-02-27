@@ -80,44 +80,124 @@ export function useCanAddForGold(product: ProductWithPricing): boolean {
 }
 
 /**
- * Generate a cart summary text for sharing (LINE OA, WhatsApp).
+ * Generate a professional cart summary text for sharing.
+ * Works for: User → Admin, Admin → Branch, Branch self-review.
  */
 export function generateCartSummaryText(): string {
   const { items, comparison } = useCartStore.getState();
 
   if (items.length === 0) return "ตะกร้าว่าง";
 
-  const lines: string[] = [
-    "🏥 Dr.den Clinic — Paragon Pass — สรุปรายการ",
-    "═══════════════════════",
-    "",
-  ];
+  const now = new Date();
+  const dateStr = now.toLocaleDateString("th-TH", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+  const timeStr = now.toLocaleTimeString("th-TH", {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 
-  // Items list
+  const best = comparison.totals.find((t) => t.isBestValue);
+  const normal = comparison.totals.find((t) => t.slug === "normal");
+
+  const lines: string[] = [];
+
+  // ─── Header
+  lines.push("╔══════════════════════════╗");
+  lines.push("║  Dr.den Clinic — Paragon Pass  ║");
+  lines.push("║       สรุปรายการหัตถการ       ║");
+  lines.push("╚══════════════════════════╝");
+  lines.push("");
+  lines.push(`📅 วันที่: ${dateStr}`);
+  lines.push(`⏰ เวลา: ${timeStr}`);
+  lines.push(`📋 จำนวน: ${items.length} รายการ (${items.reduce((s, i) => s + i.quantity, 0)} ชิ้น)`);
+  lines.push("");
+
+  // ─── Items Detail
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push("📝 รายการหัตถการ");
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
+
   items.forEach((item, idx) => {
-    lines.push(
-      `${idx + 1}. ${item.product.name} x${item.quantity} = ฿${fmt(
-        item.product.normalPrice * item.quantity
-      )}`
-    );
+    const unitPrice = item.product.normalPrice;
+    const total = unitPrice * item.quantity;
+    lines.push(`${idx + 1}. ${item.product.name}`);
+    lines.push(`   ราคา/ชิ้น: ฿${fmt(unitPrice)}  x${item.quantity}  = ฿${fmt(total)}`);
+
+    // Show best pass price for this item
+    const breakdown = comparison.items.find((b) => b.productId === item.productId);
+    if (breakdown && best && best.slug !== "normal") {
+      const passPrice = breakdown.prices.find((p) => p.passSlug === best.slug);
+      if (passPrice?.unitPrice != null && passPrice.unitPrice < unitPrice) {
+        const itemSaving = (unitPrice - passPrice.unitPrice) * item.quantity;
+        lines.push(`   → ${best.name}: ฿${fmt(passPrice.unitPrice)}/ชิ้น (ประหยัด ฿${fmt(itemSaving)})`);
+      }
+    }
   });
 
+  // ─── Normal total
   lines.push("");
-  lines.push("═══════════════════════");
-  lines.push("📊 เปรียบเทียบ:");
-  lines.push("");
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  lines.push(`💰 รวมราคาปกติ (ไม่ใช้ Pass): ฿${fmt(normal?.grandTotal ?? 0)}`);
+  lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
 
-  // Totals
+  // ─── Comparison Table
+  lines.push("");
+  lines.push("📊 เปรียบเทียบทุก Pass:");
+  lines.push("┌─────────────────────────┐");
+
   comparison.totals.forEach((t) => {
-    const star = t.isBestValue ? " ⭐ คุ้มที่สุด!" : "";
-    const fee = t.upfrontFee > 0 ? ` (ค่า Pass ฿${fmt(t.upfrontFee)})` : "";
-    const savings = t.savings > 0 ? ` ประหยัด ฿${fmt(t.savings)}` : "";
-    lines.push(`${t.name}: ฿${fmt(t.grandTotal)}${fee}${savings}${star}`);
+    const star = t.isBestValue ? " ⭐" : "";
+    const savingsText = t.savings > 0 ? ` (-${t.savingsPercent}%)` : "";
+
+    lines.push(`│ ${t.name}${star}`);
+
+    if (t.slug === "normal") {
+      lines.push(`│   รวม: ฿${fmt(t.grandTotal)}`);
+    } else {
+      lines.push(`│   ค่าหัตถการ: ฿${fmt(t.itemsTotal)}`);
+      lines.push(`│   ค่า Pass:   ฿${fmt(t.upfrontFee)}`);
+      lines.push(`│   รวมทั้งหมด: ฿${fmt(t.grandTotal)}${savingsText}`);
+      if (t.savings > 0) {
+        lines.push(`│   ✅ ประหยัด: ฿${fmt(t.savings)}`);
+      }
+      if (t.hasLockedItems) {
+        lines.push(`│   ⚠️ บางรายการไม่รองรับ Pass นี้`);
+      }
+      if (t.isOverGoldLimit) {
+        lines.push(`│   ⚠️ เกินลิมิต Gold (${t.goldItemCount}/${t.goldItemLimit})`);
+      }
+    }
+    lines.push("│");
   });
 
+  lines.push("└─────────────────────────┘");
+
+  // ─── Recommendation
+  if (best && best.slug !== "normal" && best.savings > 0) {
+    lines.push("");
+    lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
+    lines.push(`🏆 แนะนำ: ใช้ ${best.name}`);
+    lines.push(`   จ่ายรวม ฿${fmt(best.grandTotal)} (ประหยัด ฿${fmt(best.savings)}, ลด ${best.savingsPercent}%)`);
+    lines.push("━━━━━━━━━━━━━━━━━━━━━━━━━━");
+  }
+
+  // ─── Upsell alert
+  if (comparison.upsellAlert) {
+    const ua = comparison.upsellAlert;
+    lines.push("");
+    lines.push(`💡 ${ua.message}`);
+  }
+
+  // ─── Footer
   lines.push("");
-  lines.push("═══════════════════════");
-  lines.push("💬 สนใจสอบถามเพิ่มเติม @Dr.denClinic");
+  lines.push("─────────────────────────");
+  lines.push("📱 จำลองราคาเพิ่มเติม:");
+  lines.push("🔗 paragonpass-omega.vercel.app");
+  lines.push("💬 สนใจสอบถาม @Dr.denClinic");
+  lines.push("─────────────────────────");
 
   return lines.join("\n");
 }
