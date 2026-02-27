@@ -196,7 +196,6 @@ export function generateCartSummaryText(): string {
   lines.push("─────────────────────────");
   lines.push("📱 จำลองราคาเพิ่มเติม:");
   lines.push("🔗 paragonpass-omega.vercel.app");
-  lines.push("💬 สนใจสอบถาม @Dr.denClinic");
   lines.push("─────────────────────────");
 
   return lines.join("\n");
