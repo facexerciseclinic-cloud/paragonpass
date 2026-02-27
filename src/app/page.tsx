@@ -140,12 +140,6 @@ export default function Home() {
           >
             ดูตารางราคาทั้งหมด
           </a>
-          <a
-            href="/admin"
-            className="px-8 py-3.5 bg-white/60 backdrop-blur-sm text-[var(--neutral-600)] rounded-2xl font-medium hover:bg-white/90 transition-all duration-300 border border-[var(--neutral-200)] text-center"
-          >
-            Admin Dashboard
-          </a>
         </div>
 
         {/* Bottom decoration */}
