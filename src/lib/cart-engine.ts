@@ -425,11 +425,13 @@ function calculateScenarioTotals(
 // ============================================================================
 
 function findBestScenario(totals: ScenarioTotal[]): string {
-  // Find the scenario with the lowest grandTotal
-  // (consider all scenarios — even ones with locked items, since the locked
-  // items fall back to normal price they can still be cheaper overall)
-  let best = totals[0];
-  for (const scenario of totals) {
+  // Prefer scenarios with NO locked items (all items supported).
+  // Only fall back to locked scenarios if every pass has locked items.
+  const fullySupported = totals.filter((t) => !t.hasLockedItems);
+  const candidates = fullySupported.length > 0 ? fullySupported : totals;
+
+  let best = candidates[0];
+  for (const scenario of candidates) {
     if (scenario.grandTotal < best.grandTotal) {
       best = scenario;
     }
