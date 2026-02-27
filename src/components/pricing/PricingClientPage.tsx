@@ -305,14 +305,14 @@ export function PricingClientPage() {
               </div>
 
               {/* Desktop Table */}
-              <div className="hidden md:block overflow-hidden rounded-2xl border border-[var(--neutral-200)]/60 bg-white/70 backdrop-blur-sm shadow-soft">
+              <div className="hidden md:block overflow-clip rounded-2xl border border-[var(--neutral-200)]/60 bg-white/70 backdrop-blur-sm shadow-soft">
                 <table className="w-full">
                   <thead>
-                    <tr className="border-b border-[var(--neutral-200)]/60">
-                      <th className="text-left text-xs font-medium text-[var(--neutral-500)] px-5 py-3.5 bg-[var(--brand-blush)]/50 w-[30%]">
+                    <tr className="border-b border-[var(--neutral-200)]/60 sticky top-[61px] z-10">
+                      <th className="text-left text-xs font-medium text-[var(--neutral-500)] px-5 py-3.5 bg-[#faf6f3] w-[30%]">
                         หัตถการ
                       </th>
-                      <th className="text-center text-xs font-medium text-[var(--neutral-500)] px-3 py-3.5 bg-[var(--brand-blush)]/50">
+                      <th className="text-center text-xs font-medium text-[var(--neutral-500)] px-3 py-3.5 bg-[#faf6f3]">
                         <span className="block">ราคาปกติ</span>
                         <span className="block text-[10px] font-light text-[var(--neutral-400)]">ไม่ต้องใช้ Pass</span>
                       </th>
@@ -321,7 +321,7 @@ export function PricingClientPage() {
                         return (
                           <th
                             key={pass.id}
-                            className={`text-center text-xs font-medium px-3 py-3.5 ${cfg.bgClass}`}
+                            className={`text-center text-xs font-medium px-3 py-3.5 ${cfg.headerBg}`}
                           >
                             <span className={`block ${cfg.textClass}`}>{pass.name}</span>
                             <span className="block text-[10px] font-light text-[var(--neutral-400)]">
@@ -363,12 +363,13 @@ export function PricingClientPage() {
                           </td>
                           {/* Pass Prices */}
                           {data.passes.map((pass) => {
+                            const cfg = getPassConfig(pass.slug);
                             const pp = product.passPricing.find(
                               (p) => p.passId === pass.id
                             );
                             if (!pp || !pp.isAccessible) {
                               return (
-                                <td key={pass.id} className="text-center px-3 py-3">
+                                <td key={pass.id} className={`text-center px-3 py-3 ${cfg.cellBg}`}>
                                   <span className="text-xs text-[var(--neutral-300)] font-light">
                                     ไม่เปิดให้
                                   </span>
@@ -377,8 +378,10 @@ export function PricingClientPage() {
                             }
                             const price = resolvePassPrice(product.passPricing, pp, product.normalPrice);
                             const isBest = price === bestPrice;
+                            const savingsAmt = product.normalPrice - price;
+                            const savingsPct = product.normalPrice > 0 ? Math.round((savingsAmt / product.normalPrice) * 100) : 0;
                             return (
-                              <td key={pass.id} className="text-center px-3 py-3">
+                              <td key={pass.id} className={`text-center px-3 py-3 ${cfg.cellBg}`}>
                                 <span
                                   className={`text-sm tabular-nums font-medium ${
                                     isBest
@@ -393,10 +396,18 @@ export function PricingClientPage() {
                                     ★ ราคาดีสุด
                                   </span>
                                 )}
-                                {price < product.normalPrice && (
-                                  <span className="block text-[9px] text-emerald-500 font-light mt-0.5">
-                                    ประหยัด ฿{formatPrice(product.normalPrice - price)}
-                                  </span>
+                                {savingsAmt > 0 && (
+                                  <>
+                                    <span className="block text-[9px] text-emerald-500 font-light mt-0.5">
+                                      ประหยัด ฿{formatPrice(savingsAmt)} <span className="font-semibold">(-{savingsPct}%)</span>
+                                    </span>
+                                    <div className="mt-1 mx-auto w-14 bg-neutral-100 rounded-full h-1 overflow-hidden">
+                                      <div
+                                        className="h-full rounded-full bg-emerald-400 transition-all"
+                                        style={{ width: `${Math.min(savingsPct, 100)}%` }}
+                                      />
+                                    </div>
+                                  </>
                                 )}
                               </td>
                             );
@@ -457,6 +468,8 @@ export function PricingClientPage() {
 
                           const price = resolvePassPrice(product.passPricing, pp, product.normalPrice);
                           const isBest = price === bestPrice;
+                          const savingsAmt = product.normalPrice - price;
+                          const savingsPct = product.normalPrice > 0 ? Math.round((savingsAmt / product.normalPrice) * 100) : 0;
 
                           return (
                             <div key={pass.id} className="flex items-center justify-between">
@@ -470,9 +483,9 @@ export function PricingClientPage() {
                                   ฿{formatPrice(price)}
                                   {isBest && <span className="text-[9px] ml-1">★</span>}
                                 </span>
-                                {price < product.normalPrice && (
+                                {savingsAmt > 0 && (
                                   <span className="block text-[9px] text-emerald-500 font-light">
-                                    ประหยัด ฿{formatPrice(product.normalPrice - price)}
+                                    ประหยัด ฿{formatPrice(savingsAmt)} <span className="font-semibold">(-{savingsPct}%)</span>
                                   </span>
                                 )}
                               </div>
@@ -493,7 +506,7 @@ export function PricingClientPage() {
       <div className="max-w-7xl mx-auto px-4 pb-12">
         <div className="bg-white/60 backdrop-blur-sm rounded-2xl border border-[var(--neutral-200)]/60 p-5">
           <p className="text-xs font-semibold text-[var(--neutral-600)] mb-3">คำอธิบาย</p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 text-xs text-[var(--neutral-500)]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-3 text-xs text-[var(--neutral-500)]">
             <div className="flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-[var(--neutral-400)]" />
               <span><strong>ราคาปกติ</strong> — ราคาหน้าร้าน ไม่ต้องซื้อ Pass</span>
@@ -503,8 +516,12 @@ export function PricingClientPage() {
               <span><strong>ราคาดีสุด</strong> — ราคาต่ำสุดของหัตถการนั้น</span>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-emerald-500 text-xs font-medium">ประหยัด</span>
-              <span>— ส่วนลดเทียบกับราคาปกติ</span>
+              <span className="text-emerald-500 text-xs font-medium">-X%</span>
+              <span>— เปอร์เซ็นต์ส่วนลดเทียบราคาปกติ</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="inline-block w-6 bg-neutral-100 rounded-full h-1 overflow-hidden"><span className="block h-full w-3/4 rounded-full bg-emerald-400" /></span>
+              <span>— แถบแสดงสัดส่วนส่วนลด</span>
             </div>
             <div className="flex items-center gap-2">
               <span className="text-[var(--neutral-300)] text-[10px]">ไม่เปิดให้</span>
@@ -553,6 +570,8 @@ function getPassConfig(slug: string) {
     case "silver":
       return {
         bgClass: "bg-gradient-to-br from-gray-50 via-slate-100 to-gray-50",
+        headerBg: "bg-[#f1f3f5]",
+        cellBg: "bg-slate-50/50",
         textClass: "text-slate-700",
         borderClass: "border-slate-300",
         iconBg: "gradient-silver",
@@ -561,6 +580,8 @@ function getPassConfig(slug: string) {
     case "gold":
       return {
         bgClass: "bg-gradient-to-br from-amber-50/80 via-yellow-50 to-orange-50/60",
+        headerBg: "bg-[#fef9f0]",
+        cellBg: "bg-amber-50/40",
         textClass: "text-amber-800",
         borderClass: "border-amber-300",
         iconBg: "gradient-gold",
@@ -569,6 +590,8 @@ function getPassConfig(slug: string) {
     case "paragon":
       return {
         bgClass: "bg-gradient-to-br from-purple-50/80 via-pink-50/60 to-rose-50/40",
+        headerBg: "bg-[#f8f0fa]",
+        cellBg: "bg-purple-50/30",
         textClass: "text-purple-800",
         borderClass: "border-purple-300",
         iconBg: "gradient-paragon",
@@ -577,6 +600,8 @@ function getPassConfig(slug: string) {
     default:
       return {
         bgClass: "bg-gray-50",
+        headerBg: "bg-gray-100",
+        cellBg: "",
         textClass: "text-gray-700",
         borderClass: "border-gray-300",
         iconBg: "bg-gray-200",
