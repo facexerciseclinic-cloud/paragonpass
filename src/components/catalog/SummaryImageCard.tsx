@@ -40,10 +40,43 @@ export function SummaryImageCard() {
         useCORS: true,
         logging: false,
       });
+
+      // Convert to blob for better compatibility
+      const blob = await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob(resolve, "image/png")
+      );
+
+      if (!blob) throw new Error("Failed to create blob");
+
+      const fileName = `paragon-pass-summary-${Date.now()}.png`;
+
+      // Try Web Share API first (works well in LINE, mobile browsers)
+      if (navigator.share && navigator.canShare) {
+        const file = new File([blob], fileName, { type: "image/png" });
+        const shareData = { files: [file] };
+        if (navigator.canShare(shareData)) {
+          try {
+            await navigator.share(shareData);
+            return;
+          } catch (shareErr) {
+            // User cancelled or share failed — fall through to other methods
+            if ((shareErr as Error)?.name === "AbortError") return;
+          }
+        }
+      }
+
+      // Fallback: try download link (works in Chrome, Safari, etc.)
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
-      link.download = `paragon-pass-summary-${Date.now()}.png`;
-      link.href = canvas.toDataURL("image/png");
+      link.download = fileName;
+      link.href = url;
       link.click();
+
+      // If the download attribute isn't supported (LINE browser),
+      // open the image in a new tab so user can long-press to save
+      setTimeout(() => {
+        URL.revokeObjectURL(url);
+      }, 5000);
     } catch (err) {
       console.error("Failed to generate image:", err);
     } finally {
