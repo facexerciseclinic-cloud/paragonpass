@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { useCartStore } from "@/store/cart";
 import type { Pass } from "@/types";
 import { CartItemRow } from "./CartItemRow";
@@ -19,10 +19,55 @@ export function CartDrawer({ open, onClose, passes }: Props) {
   const clearCart = useCartStore((s) => s.clearCart);
   const itemCount = useCartStore((s) => s.itemCount);
 
+  const drawerRef = useRef<HTMLDivElement>(null);
+  const touchStartY = useRef(0);
+  const touchDeltaY = useRef(0);
+  const isDragging = useRef(false);
+
+  // Swipe-to-close on the handle area
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchDeltaY.current = 0;
+    isDragging.current = true;
+    if (drawerRef.current) {
+      drawerRef.current.style.transition = "none";
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isDragging.current) return;
+    const delta = e.touches[0].clientY - touchStartY.current;
+    touchDeltaY.current = delta;
+    // Only allow dragging downward
+    if (delta > 0 && drawerRef.current) {
+      drawerRef.current.style.transform = `translateY(${delta}px)`;
+    }
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    isDragging.current = false;
+    if (drawerRef.current) {
+      drawerRef.current.style.transition = "transform 0.3s ease";
+      if (touchDeltaY.current > 120) {
+        // Swiped far enough → close
+        drawerRef.current.style.transform = "translateY(100%)";
+        setTimeout(onClose, 300);
+      } else {
+        // Snap back
+        drawerRef.current.style.transform = "translateY(0)";
+      }
+    }
+    touchDeltaY.current = 0;
+  }, [onClose]);
+
   // Prevent body scroll when drawer is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = "hidden";
+      // Reset transform when opening
+      if (drawerRef.current) {
+        drawerRef.current.style.transform = "translateY(0)";
+      }
     } else {
       document.body.style.overflow = "";
     }
@@ -42,9 +87,18 @@ export function CartDrawer({ open, onClose, passes }: Props) {
       />
 
       {/* Drawer */}
-      <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[88vh] flex flex-col animate-slideUp shadow-2xl">
-        {/* Handle */}
-        <div className="flex justify-center py-3">
+      <div
+        ref={drawerRef}
+        className="absolute bottom-0 left-0 right-0 bg-white rounded-t-3xl max-h-[88vh] flex flex-col animate-slideUp shadow-2xl"
+      >
+        {/* Handle — swipe down to close */}
+        <div
+          className="flex justify-center py-3 cursor-grab active:cursor-grabbing touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          onClick={onClose}
+        >
           <div className="w-10 h-1 bg-[var(--neutral-300)] rounded-full" />
         </div>
 
